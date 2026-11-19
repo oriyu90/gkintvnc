@@ -1,0 +1,20 @@
+[package]
+name = "glintvnc-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "glintvnc"
+path = "src/main.rs"
+
+[dependencies]
+glintvnc-core = { path = "../glintvnc-core" }
+clap = { version = "4", features = ["derive"] }
+eframe = { version = "0.37.0", default-features = false, features = ["wgpu", "default_fonts", "system_fonts", "accesskit", "clipboard"] }
+tokio = { version = "1", features = ["rt", "sync"] }
+serde_json = "1"
+rpassword = "7"
+image = { version = "0.25", default-features = false, features = ["png"] }
+arboard = "3"
+egui-pop-phosphor = { version = "0.15.0", default-features = false, features = ["regular"] }

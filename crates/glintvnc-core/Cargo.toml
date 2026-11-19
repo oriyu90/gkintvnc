@@ -1,0 +1,19 @@
+[package]
+name = "glintvnc-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt", "net", "io-util", "sync", "time", "macros"] }
+des = "0.8.1" # RFC6143 legacy VNC Auth only, NOT transport encryption
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "3.6.3", default-features = false, features = ["apple-native"] }
+
+[dev-dependencies]
+tempfile = "3"
