@@ -8,7 +8,7 @@
 
 Detailed maintenance notes are kept in the private `oriyu90/common-rules-document` repository (`gkintvnc.md`), not in this public repository.
 
-This is a working Rust VNC client plus its full specification and verification workspace — **NOT** a production-released client. It builds and runs on the target Intel Mac; manual GUI/Keychain/live-drag checks still belong to the user, and no "production ready" claim is made.
+This is a working Rust VNC client plus its full specification and verification workspace. It builds and runs on the target Intel Mac. **The owner tested the app hands-on on the physical machine and declared the production environment complete on 2026-11-19.** The ad-hoc signing / notarization caveats below still apply.
 
 ## Start in 3 steps
 
@@ -40,7 +40,7 @@ This is a working Rust VNC client plus its full specification and verification w
 - CLI (profiles/settings/secret/probe, incl. `settings get/set scroll_speed`), Keychain set/get/delete, config backup/restore all work.
 - DMG packaging (ad-hoc signed) works: `dist/GlintVNC-<version>-macOS-x86_64.dmg`.
 - **Round 8 audit (2026-11-19):** four parallel reviews of all source/docs found and fixed a CopyRect-flood OOM (128 MiB per-update RGBA budget, 16 Mpx cap), unbounded network reads (15 s timeout + joinable workers), a frozen-frame overlay bug, scroll pulses breaking drags, UI-thread Keychain calls, the DesktopSize spec violation, signed cursor hotspots, LibVNCServer LED State, a silent auth downgrade, duplicate profile names, missing keyboard access to the session bar, stale i18n keys, and a wrong-viewport repaint. 55 tests green. Details: `docs/DESIGN_ROUND8_AUDIT.md`.
-- Please eyeball the app on the real screen — live interactivity (click/type into the remote) is confirmed only by the byte-level integration tests + your own check.
+- **Owner hands-on confirmation (2026-11-19):** the app was tested on the physical Intel Mac and the production environment was declared complete. Automated gates (55 tests, release build, DMG mount, LAN probe) passed beforehand; the ad-hoc signature still requires first-launch approval.
 
 **Signing status:** ad-hoc signature only. NOT notarized; Gatekeeper will require right-click → Open. Developer ID signing + notarization are required before real distribution. See `docs/VERIFICATION_LOG.md` for exact results and limitations.
 

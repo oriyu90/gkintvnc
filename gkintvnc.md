@@ -13,11 +13,11 @@
   または「システム設定 → プライバシーとセキュリティ」での許可が必要です。
 - 再ビルドごとに cdhash が変わるため、Keychain の許可を再度求められる場合があります。
 
-## 今後の作業（未実装・未検証）
+## 今後の作業（未実装の機能）
 
 - TLS / VeNCrypt / Apple ARD / RA2、Tight / Hextile、Continuous Updates / Fence、
   ExtendedDesktopSize、IME の完全対応は未実装（意図的な先送り）。
-- 実機 GUI のドラッグ体感、F8 / Esc、再描画、Keychain 承認の手動確認は継続中。
+- 実機 GUI の手動確認はオーナーにより完了（2026-11-19）。本番環境完了を宣言済み。
 - 4K / 5K の長時間負荷測定、fuzz テスト、`cargo audit` / `cargo deny` は未実施。
 - Developer ID 署名・notarization へ移行する場合は entitlements を別途レビューする。
 
