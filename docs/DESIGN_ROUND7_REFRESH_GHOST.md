@@ -1,4 +1,4 @@
-# GlintVNC ラウンド7 — 残像とラグ: サーバの実態と対策
+# GlintVNC — 残像とラグ: サーバの実態と対策
 
 対象問題（ユーザー再報告, 2026-11-19）:
 「windowを移動させた時残像がずっと残のと、ラグい」
@@ -6,7 +6,7 @@
 ## 1. サーバの実態（2026-11-19, SSH `ps -ef` で確定）
 
 ```
-user 87838 1 0 11月16 ? 00:12:18  x11vnc -forever -shared -usepw -bg -noscrollcopyrect
+user 87838 1 0 11月16 ? 00:12:18 x11vnc -forever -shared -usepw -bg -noscrollcopyrect
 ```
 
 - **x11vnc 0.9.x**（LibVNCServer 系 / 物理 `:0` ディスプレイを共有）。TigerVNC / Xtigervnc ではない（長年誤認していた）。
@@ -31,7 +31,7 @@ x11vnc の増分更新は XDamage で検出した領域のみを送る設計だ�
 2. ZRLE の zlib 圧縮はサーバ CPU に乗るため、**CompressLevel が高いとサーバがボトルネック**になる
 3. xfwm4 コンポジター OFF（済）でも x11vnc の再エンコードコストは残る
 
-## 4. 対応（今回実装, ラウンド7 クライアント側）
+## 4. 対応（今回実装, クライアント側）
 - **Refresh (再描画) 機能を追加**: 浮動バーに `↻ 再描画` ボタン + **⌘R**。非増分 `FramebufferUpdateRequest` を送り、サーバに全画面を再送させる → 残像は即消去。クライアント側は `Event::Frame{rects=[full]}` を既存 dirty-rect パイプラインで適用するだけ（新規コードは最小）。
 - **CompressLevel 1（-255）広告**: `SetEncodings` に `-255` を追加（x11vnc=LibVNCServer はクライアントの CompressLevel 指定を尊重）。サーバのエンコード CPU 負荷を下げる。
 - **統合テスト `refresh_triggers_full_framebuffer_request`**: モックが非増分リクエストの到着をバイト単位で検証。

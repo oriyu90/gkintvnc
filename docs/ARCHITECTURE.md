@@ -18,17 +18,17 @@
 
 ```mermaid
 flowchart LR
-  UI[egui UI] <--> B[Session Controller]
-  CLI[CLI commands] <--> CFG[Versioned Config Store]
-  UI <--> CFG
-  B --> KC[macOS Keychain]
-  B --> NET[Tokio RFB Client]
-  NET --> DEC[Bounded Decoder]
-  DEC --> FR[Frame Update Queue]
-  FR --> GPU[wgpu Metal canvas]
-  UI --> MAP[Keymap / Input State]
-  MAP --> NET
-  NET <--> SERVER[VNC Server / SSH tunnel]
+ UI[egui UI] <--> B[Session Controller]
+ CLI[CLI commands] <--> CFG[Versioned Config Store]
+ UI <--> CFG
+ B --> KC[macOS Keychain]
+ B --> NET[Tokio RFB Client]
+ NET --> DEC[Bounded Decoder]
+ DEC --> FR[Frame Update Queue]
+ FR --> GPU[wgpu Metal canvas]
+ UI --> MAP[Keymap / Input State]
+ MAP --> NET
+ NET <--> SERVER[VNC Server / SSH tunnel]
 ```
 
 ## Code / module boundaries
@@ -45,26 +45,26 @@ flowchart LR
 
 ```mermaid
 stateDiagram-v2
-  [*] --> Idle
-  Idle --> Resolving: user connects
-  Resolving --> Connecting
-  Connecting --> Authenticating
-  Authenticating --> Streaming
-  Streaming --> Suspended: network fail
-  Suspended --> Backoff: retryable + allowed
-  Backoff --> Resolving: delay expires
-  Suspended --> TerminalError: auth/cert/protocol fail
-  Streaming --> Closing: user disconnect
-  TerminalError --> Idle: close overlay
-  Closing --> Idle
+ [*] --> Idle
+ Idle --> Resolving: user connects
+ Resolving --> Connecting
+ Connecting --> Authenticating
+ Authenticating --> Streaming
+ Streaming --> Suspended: network fail
+ Suspended --> Backoff: retryable + allowed
+ Backoff --> Resolving: delay expires
+ Suspended --> TerminalError: auth/cert/protocol fail
+ Streaming --> Closing: user disconnect
+ TerminalError --> Idle: close overlay
+ Closing --> Idle
 ```
 
 ## Concurrency / bounded work
 
-- Networking, DNS, **Keychain access** and frame decoding run in background workers (Round 8: no `keyring` call on the UI thread, including interactive approval). When profiling shows frame decode CPU impact, spawn bounded Rayon workers or tokio `spawn_blocking`, but preserve ordered rectangle application.
+- Networking, DNS, **Keychain access** and frame decoding run in background workers (: no `keyring` call on the UI thread, including interactive approval). When profiling shows frame decode CPU impact, spawn bounded Rayon workers or tokio `spawn_blocking`, but preserve ordered rectangle application.
 - Use bounded channels (sync_channel(2), deliberately retained so the UI can never be flooded). No unbounded remote-driven allocations.
 - Render latest complete frame, not every update when UI is behind. **Done (2026-11-19): RFB updates are applied as dirty rectangles (Combine per server update); the UI patches a persistent `ColorImage` and performs `partial texture uploads` per rect (resize/first-frame still full).** Never tear rectangles.
-- Use strict max negotiated pixels (**Round 8: <=16M pixels / 64 MiB RGBA**), per-message max size, decompression ratio ceilings, rectangle count caps, **and a 128 MiB per-update RGBA damage budget checked before allocation**. All network reads (handshake, update payload, clipboard) have a 15-second inactivity timeout; EOF is retryable so auto-reconnect behaves consistently.
+- Use strict max negotiated pixels (**: <=16M pixels / 64 MiB RGBA**), per-message max size, decompression ratio ceilings, rectangle count caps, **and a 128 MiB per-update RGBA damage budget checked before allocation**. All network reads (handshake, update payload, clipboard) have a 15-second inactivity timeout; EOF is retryable so auto-reconnect behaves consistently.
 - On connection generation change, cancel prior read/decoder, discard stale frames and key state. Never apply stale frame to a new host.
 
 ## Pixel transforms

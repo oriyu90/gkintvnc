@@ -1,4 +1,4 @@
-# GlintVNC ラウンド5設計案 — リモート・ウィンドウのドラッグ破綻と遅延の徹底改善 (2026-11-19)
+# GlintVNC 設計案 — リモート・ウィンドウのドラッグ破綻と遅延の徹底改善 (2026-11-19)
 
 ユーザー報告 (2026-11-18 夜 / システム日付 2026-11-19):
 
@@ -43,18 +43,18 @@
 調査知見 (2026-11-19, ローカルの rfbproto.rst + web 調査票 — `docs/DESIGN_ROUND5_DRAG_LAG.md` 巻末参照):
 - **TigerVNC/Xtigervnc サーバは SetEncodings の先頭から先勝ちでエンコーディングを決定**する。よって ZRLE を先頭に置いた (未指定時 Raw が選ばれ続ける)。
 - **xfwm4 コンポジタ下では Xvnc が CopyRect を決して送出しない** (XRender 経路は全て "changed" 扱い、redirected window では winPixmap≠screen pixmap → is_visible()==false → CopyRect 不能; tigervnc #908)。つまりドラッグがカクカクする根本の1つは**サーバ側の描き直し量**で、クライアント側で圧縮する ZRLE が直接効く。
-  - サーバ側の推奨事項(ユーザー確認済みでなければ実施しない): `xfconf-query -c xfwm4 -p /general/use_compositing -s false` でコンポジタOFF、または `vblank_mode=off`。
+ - サーバ側の推奨事項(ユーザー確認済みでなければ実施しない): `xfconf-query -c xfwm4 -p /general/use_compositing -s false` でコンポジタOFF、または `vblank_mode=off`。
 - **ZRLE 圧縮率**: 窓矩形+背景の再描画は ZRLE で数十分の一に圧縮できる (zlib level 2 が Xtigervnc の既定)。クライアント側 inflate は高速。
 - Continuous Updates (-313 / message 150) は RTT を1フレーム分節約するが、(a) LAN RTT 0.5–2ms では実利が小さい、(b) UltraVNC 等の未対応サーバが message 150 を fatal として切断するリスクがある — **今回は見送り**。将来導入するなら rfbproto §ContinuousUpdates に従い、`-313` 広告 → 初回 update 後 `EnableContinuousUpdates(1, 0,0,w,h)` → 以後 incremental request を送らない / server message 150 (EndOfContinuousUpdates) を受理、をフラグ付きで実装すべき (既定OFF)。
 - SetEncodings の並びは ZRLE(16) → CopyRect(1) → Raw(0) → DesktopSize(-223) → Cursor(-239) → LED(-261)。
 
 - `SetEncodings` に ZRLE(16) を追加（Raw のまま維持、CopyRect 維持）。サーバが対応していればデルタ更新が zlib される（テキストUIで 5–10x 圧縮）
 - 実装（`glintvnc-core/src/protocol.rs`）:
-  - `U32 length` → zlib データを読む（`length ≤ rw*rh*4 + 64KB` を黙認上限として誤爆防止、超過は Protocol error）。
-  - **接続ごとに永続 `flate2::Decompress`**（ZRLE は stream を接続横断で共有する規定）。64×64 タイル単位で左上から走査。
-  - サブエンコーディング: 0=Raw, 1=solid, 2–16 packed palette, ≥128 の RLE 群（128 plain RLE, 130+ palette RLE）。CPIXEL は 3 bytes（我々の format: depth 24, true-colour, 24bit が LSB 3 bytes に収まる）。
-  - 展開上限は `tiles × 64×64 × 4` を越える場合に即エラー。
-  - RLE 長は `255` の連続 + 終端バイト（1 + 255×k + b）でデコード。
+ - `U32 length` → zlib データを読む（`length ≤ rw*rh*4 + 64KB` を黙認上限として誤爆防止、超過は Protocol error）。
+ - **接続ごとに永続 `flate2::Decompress`**（ZRLE は stream を接続横断で共有する規定）。64×64 タイル単位で左上から走査。
+ - サブエンコーディング: 0=Raw, 1=solid, 2–16 packed palette, ≥128 の RLE 群（128 plain RLE, 130+ palette RLE）。CPIXEL は 3 bytes（我々の format: depth 24, true-colour, 24bit が LSB 3 bytes に収まる）。
+ - 展開上限は `tiles × 64×64 × 4` を越える場合に即エラー。
+ - RLE 長は `255` の連続 + 終端バイト（1 + 255×k + b）でデコード。
 - `flate2`（pure Rust、デフォルト miniz_oxide）を core へ追加。unsafe 不使用。
 - ピクセル配置は既存の Raw と同じ 32bpp LE BGRX → RGBA へ変換してキャンバスへ。
 - 統合テスト（`tests/mock_rfb.rs`）: モックサーバが ZRLE 矩形を返す → ピクセル一致を検証（solid tile / packed palette / plain RLE / 非64倍数のタイル / 大きな実行長）。
@@ -90,7 +90,7 @@
 | `scripts/check.sh` (fmt/check/clippy/test) | PASS (40 tests: 28 core unit 含む ZRLE デコード群 + 2 i18n + 10 integration 含む ZRLE end-to-end) |
 | モックループ接続 (`tests/mock_rfb.py --log-pointer`) | PASS (接続・フレーム適用 OK) |
 | ZRLE デコード | PASS (単体 9 ケース + 統合 `zrle_rectangle_is_decoded_end_to_end`) |
-| LAN 実機 (`192.0.2.10:5900`) | **PASS (2026-11-19 再テスト)** — TCP 778ms、`probe` silent、フルスクリーンセッションで実機のリモート XFCE デスクトップ（Thunar/端末/タスクマネージャ）を正確に描画。**dirty-rect streaming を実機で観測**: 初回 8.3MB の全面フレームの後、3-13 rect・約50-97KB/update（Round 4 までは毎 update 8.3MB + フルアップロード）。ウィンドウ単体キャプチャで確認後・即削除 |
+| LAN 実機 (`192.0.2.10:5900`) | **PASS (2026-11-19 再テスト)** — TCP 778ms、`probe` silent、フルスクリーンセッションで実機のリモート XFCE デスクトップ（Thunar/端末/タスクマネージャ）を正確に描画。**dirty-rect streaming を実機で観測**: 初回 8.3MB の全面フレームの後、3-13 rect・約50-97KB/update（ までは毎 update 8.3MB + フルアップロード）。ウィンドウ単体キャプチャで確認後・即削除 |
 | CGEvent による合成ドラッグ注入 | **INCONCLUSIVE** — 全画面セッションが macOS の Space 切替で on-screen リストに現れず、合成イベントがどのウィンドウにも届かなかった (環境依存のフォーカス不能)。物理マウスでの操作感確認が必要 |
 | DMG | PASS (`ce0150a529cac0effbb8ea264119475af99ff430896dd53e54b5b1db28f09be7`, `--version` 0.1.0) |
 

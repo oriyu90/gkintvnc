@@ -1,4 +1,4 @@
-# GlintVNC ラウンド4設計案 — 入力実装の完全化 + UI 再設計 (2026-11-18)
+# GlintVNC 設計案 — 入力実装の完全化 + UI 再設計 (2026-11-18)
 
 対象ユーザー報告 (2026-11-18):
 1. マウス: クリック中の移動（ドラッグ）、右クリックなどの判定が不完全な実装部分を調査し実装する。
@@ -18,7 +18,7 @@
 
 | 症状 | 原因 |
 |---|---|
-| ドラッグが画像端/レターボックス/フローティングバーに入ると途切れる | `release_buttons` を pointer 離脱時に呼ぶ実装（Round 3）が、ボタン押下中の `PointerEvent buttons=0` を強制送信するため。**押下中は fb 座標を clamp して送り続けるべき**。 |
+| ドラッグが画像端/レターボックス/フローティングバーに入ると途切れる | `release_buttons` を pointer 離脱時に呼ぶ実装（）が、ボタン押下中の `PointerEvent buttons=0` を強制送信するため。**押下中は fb 座標を clamp して送り続けるべき**。 |
 | 右クリックの扱い | egui は `secondary` = 物理右ボタンにマップ。Mac の慣例「Ctrl+クリック＝右クリック」への変換がない（TigerVNC の挙動は調査中）。 |
 | キーの長押し | `repeat: true` の Key イベントを検証していない。macOS では long-press 中に repeated Key イベントが届くが、i) サーバ側 autorepeat (XTEST) と client-side repeat の二重押しになるか、ii) Text 経路だけが送られサーバ autorepeat に依存する。仕様に沿って整理する（調査中）。 |
 | Caps Lock/Num Lock/Scroll Lock | `Key::CapsLock` 等は egui/winit がマップ可能だが、現行コードの keysym 対応表に存在しない → 何も送られない。 |
@@ -56,23 +56,23 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ [glyph] GlintVNC 0.1.0          [＋ 新規] [⚙ 設定]            │  ← 44px, no tagline
+│ [glyph] GlintVNC 0.1.0 [＋ 新規] [⚙ 設定] │ ← 44px, no tagline
 ├──────────────┬──────────────────────────────────────────────┤
-│ 保存済み接続   │  新規接続 / {name} を編集                    │
-│ ┌──────────┐ │  ┌─────────────────────────────────────────┐ │
-│ │ icon name│ │  │ 接続情報 ───────────────────────────    │ │
-│ │ host:port│ │  │ 名前 [____________________]              │ │
-│ │ ● 接続中 x│ │  │ ホスト [____________________]  ポート [_] │ │
-│ │ [接続▶][⋯]│ │  │ ユーザー名 [____________________]        │ │
-│ └──────────┘ │  │ パスワード [____________________]          │ │
-│ ┌──────────┐ │  │ ───── オプション ───────                │ │
-│ │          │ │  │ [x] 接続後に全画面  [x] 自動再接続        │ │
-│ └──────────┘ │  │ ───── セキュリティ ────────              │ │
-│ (empty state)│  │ ( ) ローカルのみ  ( ) レガシー           │ │
-│              │  │                    [削除] [保存して接続]  │ │
-│              │  └─────────────────────────────────────────┘ │
+│ 保存済み接続 │ 新規接続 / {name} を編集 │
+│ ┌──────────┐ │ ┌─────────────────────────────────────────┐ │
+│ │ icon name│ │ │ 接続情報 ─────────────────────────── │ │
+│ │ host:port│ │ │ 名前 [____________________] │ │
+│ │ ● 接続中 x│ │ │ ホスト [____________________] ポート [_] │ │
+│ │ [接続▶][⋯]│ │ │ ユーザー名 [____________________] │ │
+│ └──────────┘ │ │ パスワード [____________________] │ │
+│ ┌──────────┐ │ │ ───── オプション ─────── │ │
+│ │ │ │ │ [x] 接続後に全画面 [x] 自動再接続 │ │
+│ └──────────┘ │ │ ───── セキュリティ ──────── │ │
+│ (empty state)│ │ ( ) ローカルのみ ( ) レガシー │ │
+│ │ │ [削除] [保存して接続] │ │
+│ │ └─────────────────────────────────────────┘ │
 ├──────────────┴──────────────────────────────────────────────┤
-│ ● 2 件接続中                            GlintVNC 0.1.0        │  ← 28px
+│ ● 2 件接続中 GlintVNC 0.1.0 │ ← 28px
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -86,10 +86,10 @@
 - ボタン: 共通高さ 32-34px, radius 8px, horizontal padding 14px, Man rope 相当の字送り無し。階層: Primary(accent fill) / Secondary(card fill + hairline stroke) / Ghost(no frame) / Danger(danger fill only when armed)。
 - 全画面アイコンは `ARROWS_OUT_SIMPLE` / `ARROWS_IN_SIMPLE`、戻るは `ARROW_LEFT`、設定は `GEAR`、切断は `POWER`（danger tint）、保存は `CHECK`、削除は `TRASH`、編集は `PENCIL`。
 - **AI 量産風の回避**（skill §calibration）:
-  - 近黒＋蛍光 accent は避ける（accent は落ち着いた青 `#4C8DFF` に）。
-  - SaaS カードの「全カード同一 radius + 同一ソフトシャドー」は避ける（radius は hierarchy 別、影はハイライトラインのみ、影より hairline stroke）。
-  - ALL-CAPS eyebrow / `A · B · C` メタ / em dash ラベル / 末 tail の → は使わない。
-  - タイプスケールは 4 段のみ。アイコンは Phosphor regular に統一（emoji は使わない）。
+ - 近黒＋蛍光 accent は避ける（accent は落ち着いた青 `#4C8DFF` に）。
+ - SaaS カードの「全カード同一 radius + 同一ソフトシャドー」は避ける（radius は hierarchy 別、影はハイライトラインのみ、影より hairline stroke）。
+ - ALL-CAPS eyebrow / `A · B · C` メタ / em dash ラベル / 末 tail の → は使わない。
+ - タイプスケールは 4 段のみ。アイコンは Phosphor regular に統一（emoji は使わない）。
 - フォント: Hiragino W3/W6 を現行どおり。コード部分は monospace（`Menlo` 名を font family に追加）。
 - モーション: 新規/保存時にカードへ1回だけ flash（200ms, hover fade のみ・入場アニメは無し）。
 
@@ -133,7 +133,7 @@
 10. ステータスバー: ● N 件接続中 accent dot + 左ステータス。
 11. Caption/見出しを句読点無しの plain copy に統一（"WORD — fragment" を作らない）。
 12. before/after を screencapture -l<windowID> で比較、削除。
-13. DMG、VERIFICATION_LOG、MAINTENANCE（Round 4 行、phosphor/Skill 導入記、frontend-design の由来とライセンス記録）を更新。
+13. DMG、VERIFICATION_LOG、MAINTENANCE（ 行、phosphor/Skill 導入記、frontend-design の由来とライセンス記録）を更新。
 
 ## 4. 検証
 1. 入力: `cargo test`、mock_rfb.py で bytes 検証（PointerButton マスク、CapsLock keysym、F1、Ctrl+\）→ 既存の integration tests を拡張。

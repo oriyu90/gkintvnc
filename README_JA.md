@@ -13,9 +13,9 @@
 ## ビルドと検証
 
 ```sh
-bash scripts/bootstrap-macos.sh      # 環境調査（ソフトを勝手に入れない）
-bash scripts/check.sh                # fmt / check / test / clippy
-bash scripts/package-macos.sh        # dist/GlintVNC-0.1.0-macOS-x86_64.dmg を生成
+bash scripts/bootstrap-macos.sh # 環境調査（ソフトを勝手に入れない）
+bash scripts/check.sh # fmt / check / test / clippy
+bash scripts/package-macos.sh # dist/GlintVNC-1.0.0-macOS-x86_64.dmg を生成
 ```
 
 `package-macos.sh` は.ad-hoc 署名の `.app` と DMG を作ります。配布用には
@@ -25,17 +25,17 @@ Developer ID 署名と notarization が必要です（現状は未対応、Gatek
 ## 実装済みの機能（2026-11-19 現在）
 
 - RFB 3.3 / 3.7 / 3.8、VNCAuth、Raw / CopyRect / ZRLE、および Cursor / DesktopSize / LED State
-  擬似エンコーディング
+ 擬似エンコーディング
 - 差分矩形ストリーミングと `TextureHandle::set_partial` による部分 GPU 転送
 - 16ms のポインタ移動スロットル、ボタン解放の確実な配送、矩形間の入力送信
 - 浮動バー（接続一覧 / 全画面 / CAPS / 再描画 / 設定 / 切断）、F8 で表示切替、
-  Esc で全画面解除、⌘R で強制再描画
+ Esc で全画面解除、⌘R で強制再描画
 - Keychain にのみ保存するパスワード、GUI と CLI で共通の設定 JSON
 - 設定: 言語 ja/en、テーマ dark/light/system、スクロール速度、
-  クリップボード共有（既定オフ）、表示スケール、キーマップ
+ クリップボード共有（既定オフ）、表示スケール、キーマップ
 - CLI: `profiles` / `settings` / `secret` / `probe` / `connect`
 - ネットワーク読み取りのタイムアウト、累積ダメージ上限、
-  切断時のボタン・キー状態の解放、再接続（ジッタ付きバックオフ）
+ 切断時のボタン・キー状態の解放、再接続（ジッタ付きバックオフ）
 
 未実装（明示的に先送り）: TLS/VeNCrypt、ARD/RA2、Tight/Hextile、
 Continuous Updates、Fence、IME の完全対応。詳細は
@@ -44,14 +44,14 @@ Continuous Updates、Fence、IME の完全対応。詳細は
 ## よくある勘違い
 
 - VNCAuth は通信路を暗号化しません。LAN 使用はプロファイルで
-  「レガシー（暗号化なし）」を明示した場合のみ許可されます。
+ 「レガシー（暗号化なし）」を明示した場合のみ許可されます。
 - 画面が見えることと、低遅延・低 CPU であることは別です。実機測定は
-  `docs/VERIFICATION_LOG.md` に記録しています。
+ `docs/VERIFICATION_LOG.md` に記録しています。
 - **オーナーによる実機確認済み（2026-11-19）**: 物理 Mac で試用され、本番環境完了が宣言されました。
-  事前の自動ゲート（55テスト、リリースビルド、DMG マウント、LAN probe）はすべて PASS です。
-  ad-hoc 署名のため初回起動の許可は引き続き必要です。
+ 事前の自動ゲート（55テスト、リリースビルド、DMG マウント、LAN probe）はすべて PASS です。
+ ad-hoc 署名のため初回起動の許可は引き続き必要です。
 - ad-hoc 署名の再ビルドでは cdhash が変わるため、Keychain の許可を
-  再承認する必要があります。
+ 再承認する必要があります。
 
 ## ドキュメント
 

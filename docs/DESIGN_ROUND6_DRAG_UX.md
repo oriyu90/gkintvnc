@@ -1,4 +1,4 @@
-# GlintVNC ラウンド6設計案 — リモートドラッグ操作の改善
+# GlintVNC 設計案 — リモートドラッグ操作の改善
 
 対象問題（ユーザー再報告, 2026-11-19）:
 「未だに接続先でドラッグ操作がやりにくすぎる」
@@ -73,9 +73,9 @@
 
 ### B. リモート側（ユーザー作業・効果最大・client では代替不可）
 7. **xfwm4 コンポジター無効化**（xfwm4 側の設定）:
-   `xfconf-query -c xfwm4 -p /general/use_compositing -s false`
-   （または `xfwm4 --compositor=off`／設定→ウィンドウマネージャーの調整→コンポジター）
-   これで CopyRect が復活し、ドラッグ時の再送量が激減する。**これが体感改善の最大のレバー。**
+ `xfconf-query -c xfwm4 -p /general/use_compositing -s false`
+ （または `xfwm4 --compositor=off`／設定→ウィンドウマネージャーの調整→コンポジター）
+ これで CopyRect が復活し、ドラッグ時の再送量が激減する。**これが体感改善の最大のレバー。**
 8. （任意・Apple ARD 公式TIP）デスクトップ背景を単色 (黒/グレー) にすると damage 面積が減り更に軽くなる。
 9. （参考）無地でなくても "tight"/ZRLE で済むが、XRender 経路自体は消せない。
 

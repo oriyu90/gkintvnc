@@ -17,7 +17,7 @@
 | Server | Platform | Auth/transport | Encodings | Status |
 |---|---|---|---|---|
 | controlled mock | localhost | None / VNCAuth | Raw, CopyRect, ZRLE | PASS (test harness in-tree) |
-| x11vnc 0.9.17 (LibVNCServer) | Linux test host (`:0`, physical display of the OptiPlex, user-authorized) | VNCAuth (legacy, `-usepw`) | Raw, CopyRect, ZRLE (client implements + advertises first); **LibVNCServer LED State `0xFFFE0000` (Round 8)** | PASS (LAN live probe + render; dirty-rect streaming measured; ZRLE traffic observed) |
+| x11vnc 0.9.17 (LibVNCServer) | Linux test host (`:0`, physical display of the OptiPlex, user-authorized) | VNCAuth (legacy, `-usepw`) | Raw, CopyRect, ZRLE (client implements + advertises first); **LibVNCServer LED State `0xFFFE0000` ()** | PASS (LAN live probe + render; dirty-rect streaming measured; ZRLE traffic observed) |
 | TigerVNC (Xtigervnc) | (not exercised yet on this project; prior documentation misidentified the LAN server as this — corrected 2026-11-19) | — | — | UNVERIFIED |
 | x11vnc | Linux | password, external tunnel | Raw/Hextile | TODO |
 | TightVNC | Windows/Linux | VNCAuth | Tight | TODO |
@@ -40,7 +40,7 @@ Only connect to machines you own or are authorized to administer. Never open raw
 
 **Metrics:** median/p95 connection setup, first-frame time, frame age, rect decode cost, UI render cost, bytes/s, CPU %, resident memory (RSS), GPU utilization where available, reconnect success rate. Test 60s idle, 60s scrolling, 10-minute streaming, sleep/wake and forced network interruptions. `time` and `sample`, `powermetrics` only with explicit approval where it requests privilege. Avoid invented performance numbers.
 
-**Round 8 hardening:** server-sent RGBA is capped at 128 MiB per update (full-frame CopyRect flood cannot OOM); framebuffer <=16 Mpx; all reads have a 15-second inactivity timeout; DesktopSize forces a non-incremental follow-up request; negative/signed cursor hotspots are clamped.
+** hardening:** server-sent RGBA is capped at 128 MiB per update (full-frame CopyRect flood cannot OOM); framebuffer <=16 Mpx; all reads have a 15-second inactivity timeout; DesktopSize forces a non-incremental follow-up request; negative/signed cursor hotspots are clamped.
 
 ## Edge cases
 
