@@ -4,6 +4,8 @@
 
 **Author:** Yuki_Orita (折田悠希 / おりたゆうき) · **License:** MIT
 
+**Repository:** https://github.com/oriyu90/gkintvnc · **Release:** https://github.com/oriyu90/gkintvnc/releases/tag/v0.1.0 · **Website:** https://studio-rizi.pages.dev/projects/gkintvnc/
+
 Detailed maintenance notes are kept in the private `oriyu90/common-rules-document` repository (`gkintvnc.md`), not in this public repository.
 
 This is a working Rust VNC client plus its full specification and verification workspace — **NOT** a production-released client. It builds and runs on the target Intel Mac; manual GUI/Keychain/live-drag checks still belong to the user, and no "production ready" claim is made.

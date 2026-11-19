@@ -121,7 +121,7 @@ repaint で継続処理する（`MAX_SCROLL_PULSES_PER_FRAME` で詰めても消
 | マウント確認 | `glintvnc 0.1.0`、`CFBundleVersion` = 0.1.0、ad-hoc 署名 `dev.glintvnc.viewer` |
 | LAN 実機 probe | PASS（`Connected: test-server:0 (1920x1080)`、スクラッチ設定、画像は保存せず）|
 | GUI 実機操作（ドラッグ / F8 / Esc / 再描画 / Keychain 再承認） | ユーザー確認待ち（Editor 側では GUI 操作を行わない）|
-| DMG SHA256 | d5b475766bbad3aa72399c475e2039b654209a45d6ea000341537186e2489079 |
+| DMG SHA256 | 52f4fee438c5f7b02a87f573574a2ce9962f3ec26235508313d17a1719e74b21 |
 
 ## 3. 意図的に先送りした項目（決定事項）
 
