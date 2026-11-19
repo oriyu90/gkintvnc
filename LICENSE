@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Yuki_Orita
+Copyright (c) 2026 Yuki_Orita (折田悠希 / おりたゆうき)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,103 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY NOTICES
+--------------------------------------------------------------------------------
+
+GlintVNC is built with Rust crates distributed from crates.io. The resolved
+dependency graph (Cargo.lock, 412 third-party packages) was inventoried with
+`cargo metadata` on 2026-11-19. Where a crate offers a choice of licenses,
+the permissive MIT and/or Apache-2.0 option applies to this distribution.
+No copyleft-only component is used. Full license texts are included in each
+dependency's published crate source and at the canonical URLs below.
+
+Direct dependencies (name, version, SPDX from crate manifest):
+
+  arboard 3.7.0            MIT OR Apache-2.0
+  clap 4.6.8               MIT OR Apache-2.0
+  des 0.8.1                MIT OR Apache-2.0
+  eframe 0.37.0            MIT OR Apache-2.0
+  egui-pop-phosphor 0.15.0 MIT OR Apache-2.0
+  flate2 1.1.11            MIT OR Apache-2.0
+  image 0.25.10            MIT OR Apache-2.0
+  keyring 3.6.3            MIT OR Apache-2.0
+  rpassword 7.5.5          Apache-2.0
+  serde 1.0.229            MIT OR Apache-2.0
+  serde_json 1.0.154       MIT OR Apache-2.0
+  tempfile 3.27.0          MIT OR Apache-2.0   (development only)
+  thiserror 2.0.21         MIT OR Apache-2.0
+  tokio 1.54.1             MIT
+
+License families in the full transitive graph (count: SPDX expression):
+
+  199  MIT OR Apache-2.0                    91  MIT
+   45  Apache-2.0 OR MIT                    13  MIT/Apache-2.0
+   11  Apache-2.0                           11  Zlib OR Apache-2.0 OR MIT
+    7  Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT
+    6  MIT OR Apache-2.0 OR Zlib             4  Unlicense OR MIT
+    3  Zlib                                  2  BSL-1.0
+    2  MIT OR Zlib OR Apache-2.0             2  BSD-3-Clause OR Apache-2.0
+    2  BSD-3-Clause OR MIT OR Apache-2.0     2  MIT OR Apache-2.0 OR LGPL-2.1-or-later
+    2  Unlicense/MIT                         2  (MIT OR Apache-2.0) AND Unicode-3.0
+    2  BSD-2-Clause OR Apache-2.0 OR MIT     1  0BSD OR MIT OR Apache-2.0
+    1  Apache-2.0 AND MIT                    1  (MIT OR Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0
+    1  ISC                                   1  Apache-2.0/MIT
+    1  Apache-2.0 OR GPL-2.0-only
+
+Notable single-license or asset-license components (all permissive):
+
+  - clipboard-win 5.4.3, error-code 3.4.0 — BSL-1.0 (Boost Software License)
+    https://www.boost.org/LICENSE_1_0.txt
+  - libloading 0.8.9 — ISC License
+    https://opensource.org/license/isc-license
+  - foldhash 0.2.0, slotmap 1.1.1, zlib-rs 0.6.8 — Zlib License
+    https://opensource.org/license/zlib
+  - epaint_default_fonts 0.37.0 — bundled fonts carry OFL-1.1 and the
+    Ubuntu Font License 1.0 in addition to MIT/Apache-2.0 for the code.
+    https://openfontlicense.org/  https://ubuntu.com/legal/font-licence
+  - unicode-ident / unicode-properties — Unicode-3.0 for the data tables.
+    https://www.unicode.org/license.txt
+  - bytemuck, objc2-* and other dual-licensed crates use the MIT option.
+  - r-efi and self_cell offer LGPL-2.1/GPL-2.0 alternatives; MIT/Apache-2.0
+    is selected, so no copyleft obligation is incurred.
+
+Canonical license texts:
+
+  MIT               https://opensource.org/license/mit
+  Apache-2.0        https://www.apache.org/licenses/LICENSE-2.0
+  BSD-2/3-Clause    https://opensource.org/license/bsd-2-clause
+  Unlicense         https://unlicense.org/
+  0BSD              https://opensource.org/license/0bsd
+  Unicode-3.0       https://www.unicode.org/license.txt
+
+Bundled icon font:
+
+  Phosphor Icons (https://phosphoricons.com/) — MIT License.
+  Copyright (c) 2023 Phosphor Icons. https://github.com/phosphor-icons/core
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+The application icon (assets/GlintVNC.icns) is generated locally by
+scripts/make-icon.py and is covered by this project's MIT license.
+
+Design guidance from the "frontend-design" skill (Anthropic, Apache-2.0) was
+consulted during UI development; it is not compiled into or distributed with
+the application binary. https://www.apache.org/licenses/LICENSE-2.0

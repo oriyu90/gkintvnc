@@ -1,68 +1,40 @@
-# GlintVNC（日本語ガイド）
+# GlintVNC
 
-**対象:** macOS Ventura 13.7.8 / MacBook Pro 2017 Intel / x86_64。
+**Intel x86_64 Mac（macOS 13 Ventura 以降）** 向けのネイティブ VNC ビューアです。Rust で実装し、日本語と英語の UI に完全対応しています。
 
-**著作者:** Yuki_Orita（折田悠希 / おりたゆうき） · **ライセンス:** MIT
+- **著作者:** Yuki_Orita（折田悠希 / おりたゆうき）
+- **ライセンス:** MIT — 全文とサードパーティライセンスは [LICENSE](LICENSE) を参照
+- **リポジトリ:** https://github.com/oriyu90/gkintvnc
+- **リリース:** https://github.com/oriyu90/gkintvnc/releases/tag/v1.0.0
+- **紹介サイト:** https://studio-rizi.pages.dev/projects/gkintvnc/
 
-詳細な保守情報はプライベートの `oriyu90/common-rules-document` リポジトリ（`gkintvnc.md`）で管理します。
+## できること
 
-このリポジトリは、Rust 製のネイティブ VNC ビューアと、その検証環境一式です。
-詳細な検証結果は `docs/VERIFICATION_LOG.md`、設計は `docs/ARCHITECTURE.md`、
-セキュリティ要件は `docs/SECURITY.md` を参照してください。
+RFB/VNC デスクトップへ接続し、リモート画面を専用ウィンドウ（または全画面）に表示します。RFB 3.3 / 3.7 / 3.8 と VNCAuth に対応し、Raw / CopyRect / ZRLE エンコーディングを扱います。画面更新は小さな差分矩形としてストリーミングし、GPU へ部分是転送するため、ウィンドウのドラッグも滑らかに動きます。
 
-## ビルドと検証
+UI は**日本語・英語の両方に完全対応**しています。接続一覧、プロファイル編集、設定、セッション操作バーまで同じ機能が使えます。表示スケール（全体表示 / 原寸 / 拡大）とキーマップは接続ごとに設定できます。操作バーには残像を消す「再描画」（⌘R）、バーの表示切替（F8）、全画面解除（Esc）があります。
+
+パスワードは macOS Keychain にのみ保存し、設定 JSON・ログ・コマンドライン引数には書きません。リモートの画面データは信頼できない入力として扱い、厳しい境界チェック、更新あたり 128 MiB の RGBA 上限、16 Mpx のフレームバッファ上限、読み取りタイムアウトで保護しています。
+
+## ダウンロードと初回起動
+
+[v1.0.0 リリース](https://github.com/oriyu90/gkintvnc/releases/tag/v1.0.0) から `GlintVNC-1.0.0-macOS-x86_64.dmg` をダウンロードし、マウントして Applications へドラッグしてください。
+
+DMG は **ad-hoc 署名であり、Apple 公証は行っていません**。初回起動は右クリック→「開く」、または「システム設定 → プライバシーとセキュリティ」で許可してください。再ビルドごとに署名が変わるため、Keychain が再度許可を求める場合があります。
+
+## ソースからビルド
 
 ```sh
-bash scripts/bootstrap-macos.sh # 環境調査（ソフトを勝手に入れない）
-bash scripts/check.sh # fmt / check / test / clippy
-bash scripts/package-macos.sh # dist/GlintVNC-1.0.0-macOS-x86_64.dmg を生成
+bash scripts/check.sh          # 整形・チェック・55テスト・clippy
+bash scripts/package-macos.sh  # ad-hoc 署名の .app と DMG を作成
 ```
 
-`package-macos.sh` は.ad-hoc 署名の `.app` と DMG を作ります。配布用には
-Developer ID 署名と notarization が必要です（現状は未対応、Gatekeeper の
-初回起動は右クリック→「開く」）。
+Rust 1.100 以降（`x86_64-apple-darwin` ターゲット）と macOS 13 SDK が必要です。
 
-## 実装済みの機能（2026-11-19 現在）
+## コマンドライン
 
-- RFB 3.3 / 3.7 / 3.8、VNCAuth、Raw / CopyRect / ZRLE、および Cursor / DesktopSize / LED State
- 擬似エンコーディング
-- 差分矩形ストリーミングと `TextureHandle::set_partial` による部分 GPU 転送
-- 16ms のポインタ移動スロットル、ボタン解放の確実な配送、矩形間の入力送信
-- 浮動バー（接続一覧 / 全画面 / CAPS / 再描画 / 設定 / 切断）、F8 で表示切替、
- Esc で全画面解除、⌘R で強制再描画
-- Keychain にのみ保存するパスワード、GUI と CLI で共通の設定 JSON
-- 設定: 言語 ja/en、テーマ dark/light/system、スクロール速度、
- クリップボード共有（既定オフ）、表示スケール、キーマップ
-- CLI: `profiles` / `settings` / `secret` / `probe` / `connect`
-- ネットワーク読み取りのタイムアウト、累積ダメージ上限、
- 切断時のボタン・キー状態の解放、再接続（ジッタ付きバックオフ）
+同じバイナリで `profiles` / `settings` / `secret` / `probe` / `connect` サブコマンドが使えます。詳細は `glintvnc --help` を参照してください。
 
-未実装（明示的に先送り）: TLS/VeNCrypt、ARD/RA2、Tight/Hextile、
-Continuous Updates、Fence、IME の完全対応。詳細は
-`docs/COMPATIBILITY_MATRIX.md` を参照してください。
+## サポート
 
-## よくある勘違い
-
-- VNCAuth は通信路を暗号化しません。LAN 使用はプロファイルで
- 「レガシー（暗号化なし）」を明示した場合のみ許可されます。
-- 画面が見えることと、低遅延・低 CPU であることは別です。実機測定は
- `docs/VERIFICATION_LOG.md` に記録しています。
-- **オーナーによる実機確認済み（2026-11-19）**: 物理 Mac で試用され、本番環境完了が宣言されました。
- 事前の自動ゲート（55テスト、リリースビルド、DMG マウント、LAN probe）はすべて PASS です。
- ad-hoc 署名のため初回起動の許可は引き続き必要です。
-- ad-hoc 署名の再ビルドでは cdhash が変わるため、Keychain の許可を
- 再承認する必要があります。
-
-## ドキュメント
-
-| ファイル | 内容 |
-|---|---|
-| `AGENTS.md` | 作業規則（必読） |
-| `OPEN_CODE_START_PROMPT.md` | 初期依頼の原文 |
-| `docs/ARCHITECTURE.md` | 設計・データフロー |
-| `docs/SECURITY.md` | 脅威モデルと秘密情報の扱い |
-| `docs/PRODUCT_SPEC.md` / `docs/ROADMAP.md` | 機能一覧とロードマップ |
-| `docs/QA_PLAN.md` | テストケース |
-| `docs/VERIFICATION_LOG.md` | 実機検証の証跡 |
-| `docs/DESIGN_ROUND*.md` | 各ラウンドの調査・修正記録 |
-| `docs/research/` | 参考アプリ・ライブラリ・出典 |
+バグ報告・告知: [Discord](https://discord.gg/x7KXhNTD8M) · [GitHub Issues](https://github.com/oriyu90/gkintvnc/issues) · [X](https://x.com/InovateofRIZI) · [Studio Rizi](https://studio-rizi.pages.dev/)
